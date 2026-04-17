@@ -2,7 +2,7 @@
 //  SHIPLOG — Frontend App
 // ============================================
 
-const API = 'http://localhost:3000/api';
+const API = 'https://shiplog-tafy.onrender.com';
 
 // ---- State ----
 let currentUser = null;
