@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShipLog — Crew Activity Tracker</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- ============================================
+     AUTH — LOGIN
+     ============================================ -->
+<div id="auth-login" class="auth-page">
+  <div class="auth-box">
+    <div class="auth-brand">
+      <h1>⚓ ShipLog</h1>
+      <p>Crew Activity Tracker</p>
+    </div>
+    <form id="form-login">
+      <div class="form-group">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="captain@vessel.com" required />
+      </div>
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="••••••••" required />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Login</button>
+    </form>
+    <div class="auth-switch">
+      Don't have an account? <a data-auth-switch="register">Register</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     AUTH — REGISTER
+     ============================================ -->
+<div id="auth-register" class="auth-page">
+  <div class="auth-box">
+    <div class="auth-brand">
+      <h1>⚓ ShipLog</h1>
+      <p>Create your account</p>
+    </div>
+    <form id="form-register">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="reg-username">Username</label>
+          <input type="text" id="reg-username" placeholder="thanossala" required />
+        </div>
+        <div class="form-group">
+          <label for="reg-email">Email</label>
+          <input type="email" id="reg-email" placeholder="you@email.com" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="reg-password">Password</label>
+        <input type="password" id="reg-password" placeholder="Min 6 characters" required minlength="6" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="reg-vessel">Vessel Name (optional)</label>
+          <input type="text" id="reg-vessel" placeholder="MV Atlantic Star" />
+        </div>
+        <div class="form-group">
+          <label for="reg-rank">Rank (optional)</label>
+          <select id="reg-rank">
+            <option value="">Select rank</option>
+            <option value="Cadet Officer">Cadet Officer</option>
+            <option value="3rd Officer">3rd Officer</option>
+            <option value="2nd Officer">2nd Officer</option>
+            <option value="Chief Officer">Chief Officer</option>
+            <option value="Captain">Captain</option>
+            <option value="Engineer">Engineer</option>
+            <option value="Student">Student</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Create Account</button>
+    </form>
+    <div class="auth-switch">
+      Already have an account? <a data-auth-switch="login">Login</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     APP SHELL
+     ============================================ -->
+<div id="app-shell" class="app-layout" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h1>⚓ ShipLog</h1>
+      <span>Crew Activity Tracker</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item" data-page="dashboard">
+        <span class="icon">📊</span> Dashboard
+      </button>
+      <button class="nav-item" data-page="logs">
+        <span class="icon">📋</span> Log Entries
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-badge">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">Loading...</div>
+          <div class="user-rank" id="user-rank"></div>
+        </div>
+        <button id="btn-logout" title="Logout">⏏</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- DASHBOARD PAGE -->
+    <section id="page-dashboard" class="page">
+      <div class="page-header">
+        <div>
+          <h2>Dashboard</h2>
+          <p>Overview of your activity log</p>
+        </div>
+        <button class="btn btn-primary" id="btn-new-log">+ New Entry</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Logs</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-sub">All time entries</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">This Month</div>
+          <div class="stat-value" id="stat-month">—</div>
+          <div class="stat-sub">Current month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Last Entry</div>
+          <div class="stat-value" id="stat-last" style="font-size:18px;padding-top:8px;">—</div>
+          <div class="stat-sub">Most recent log</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Categories</div>
+          <div class="stat-value" id="stat-cats">—</div>
+          <div class="stat-sub">Activity types</div>
+        </div>
+      </div>
+
+      <!-- Chart + Recent Logs -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div class="card">
+          <div class="card-title">Logs by Category</div>
+          <div class="chart-container">
+            <canvas id="category-chart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Recent Entries</div>
+          <div id="recent-logs">
+            <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading...</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGS PAGE -->
+    <section id="page-logs" class="page">
+      <div class="page-header">
+        <div>
+          <h2>Log Entries</h2>
+          <p>All your activity records</p>
+        </div>
+        <button class="btn btn-primary" id="btn-new-log-2" onclick="document.getElementById('btn-new-log').click()">+ New Entry</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="logs-toolbar">
+        <input type="text" id="filter-search" placeholder="🔍 Search logs..." style="max-width:220px;" />
+        <select id="filter-category" style="max-width:160px;">
+          <option value="">All categories</option>
+          <option value="navigation">Navigation</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="safety">Safety</option>
+          <option value="cargo">Cargo</option>
+          <option value="crew">Crew</option>
+          <option value="weather">Weather</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div id="logs-list">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading...</p></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============================================
+     LOG MODAL
+     ============================================ -->
+<div id="log-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">New Log Entry</div>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <form id="form-log">
+      <div class="form-group">
+        <label for="log-title">Title *</label>
+        <input type="text" id="log-title" placeholder="e.g. Routine engine inspection" required />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="log-category">Category *</label>
+          <select id="log-category" required>
+            <option value="">Select category</option>
+            <option value="navigation">Navigation</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="safety">Safety</option>
+            <option value="cargo">Cargo</option>
+            <option value="crew">Crew</option>
+            <option value="weather">Weather</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="log-date">Date *</label>
+          <input type="date" id="log-date" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="log-location">Location (optional)</label>
+        <input type="text" id="log-location" placeholder="e.g. Port of Piraeus, Mediterranean" />
+      </div>
+      <div class="form-group">
+        <label for="log-description">Description (optional)</label>
+        <textarea id="log-description" placeholder="Describe what happened..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="modal-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Entry</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
