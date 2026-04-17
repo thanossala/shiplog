@@ -2,7 +2,7 @@
 //  SHIPLOG — Frontend App
 // ============================================
 
-const API = 'https://shiplog-tafy.onrender.com';
+const API = 'https://shiplog-tafy.onrender.com/api';
 
 // ---- State ----
 let currentUser = null;
