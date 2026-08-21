@@ -1,0 +1,5 @@
+node_modules/
+backend/db/shiplog.db
+.env
+.DS_Store
+npm-debug.log*
