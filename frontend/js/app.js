@@ -2,7 +2,12 @@
 //  SHIPLOG — Frontend App (Redesigned)
 // ============================================
 
-const API = 'https://shiplog-tafy.onrender.com/api';
+// Relative path: server.js serves the frontend and the API from the same
+// origin (see backend/server.js), so this works both locally
+// (http://localhost:3000/api) and in production (Render), unlike a
+// hardcoded absolute URL which would silently point every local dev run
+// at the production API instead of the server you just started.
+const API = '/api';
 
 // ---- State ----
 let currentUser = null;

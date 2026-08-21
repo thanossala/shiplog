@@ -54,10 +54,16 @@ async function getDb() {
       return {
         run(...params) {
           rawDb.run(sql, params);
-          save();
+          // IMPORTANT: last_insert_rowid()/getRowsModified() must be read
+          // *before* save(), because rawDb.export() (called inside save())
+          // resets sql.js's internal last_insert_rowid tracking back to 0.
+          // Reading after save() silently corrupted every INSERT's return
+          // value (new user/log ids always came back as 0).
           const r = rawDb.exec('SELECT last_insert_rowid() as id');
           const lastInsertRowid = r[0] ? r[0].values[0][0] : null;
-          return { lastInsertRowid, changes: rawDb.getRowsModified() };
+          const changes = rawDb.getRowsModified();
+          save();
+          return { lastInsertRowid, changes };
         },
         get(...params) {
           const stmt = rawDb.prepare(sql);
